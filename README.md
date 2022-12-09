@@ -28,6 +28,10 @@ pip install stenocaptioner
 
 ## Usage
 
+You can give the url of youtube video as an argument.
+
 ```sh
 stenocaptioner https://www.youtube.com/watch?v=A6GG65TAEYo --language ja --text-color red
 ```
+
+![demo](assets/demo.png)
