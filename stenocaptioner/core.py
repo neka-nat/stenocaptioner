@@ -8,6 +8,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 
 _px_per_pt = 1.33
+_lang_scale = {"en": 2, "ja": 1}
 
 
 def speech_to_text_segments(url: str, language: str, model_type: str, verbose: bool = True) -> list:
@@ -27,10 +28,10 @@ def text_to_caption(url: str, segments: list, text_color: str, fontsize: int, fo
 
     width = video.w
     fontsize_px = int(fontsize * _px_per_pt)
-    max_text_length = width // fontsize_px
+    max_text_length = width // fontsize_px * _lang_scale.get(font, 2)
 
     for seg in segments:
-        if len(seg["text"]) * fontsize_px > width:
+        if len(seg["text"]) // _lang_scale.get(font, 2) * fontsize_px > width:
             split_str = [seg["text"][x : x + max_text_length] for x in range(0, len(seg["text"]), max_text_length)]
             seg["text"] = "\n".join(split_str)
 
@@ -43,6 +44,7 @@ def text_to_caption(url: str, segments: list, text_color: str, fontsize: int, fo
             font=font,
         )
         for seg in segments
+        if video.duration > seg["start"] and video.duration > seg["end"]
     ]
     final_clip = editor.concatenate_videoclips(annotated_clips)
     prefix_url, ext = os.path.splitext(url)
