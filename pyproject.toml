@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "stenocaptioner"
+version = "0.1.0"
+description = ""
+authors = ["nekanat <nekanat.stock@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+# whisper = {git = "https://github.com/openai/whisper.git"}
+torch = "^1.13.0"
+numpy = "^1.23.5"
+tqdm = "^4.64.1"
+more-itertools = "^9.0.0"
+transformers = "^4.25.1"
+ffmpeg-python = "0.2.0"
+youtube-dl = "^2021.12.17"
+moviepy = "^1.0.3"
+
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.10.1"
+black = "^22.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+stenocaptioner = "stenocaptioner.core:cli"
