@@ -37,14 +37,13 @@ def text_to_caption(url: str, segments: list, text_color: str, fontsize: int, fo
 
     annotated_clips = [
         annotate(
-            video.subclip(seg["start"], seg["end"]),
+            video.subclip(min(seg["start"], video.duration), min(seg["end"], video.duration)),
             text=seg["text"],
             text_color=text_color,
             fontsize=fontsize,
             font=font,
         )
         for seg in segments
-        if video.duration > seg["start"] and video.duration > seg["end"]
     ]
     final_clip = editor.concatenate_videoclips(annotated_clips)
     prefix_url, ext = os.path.splitext(url)
