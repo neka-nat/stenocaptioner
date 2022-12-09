@@ -28,10 +28,10 @@ def text_to_caption(url: str, segments: list, text_color: str, fontsize: int, fo
 
     width = video.w
     fontsize_px = int(fontsize * _px_per_pt)
-    max_text_length = width // fontsize_px * _lang_scale.get(font, 2)
+    max_text_length = width // fontsize_px * _lang_scale.get(language, 2)
 
     for seg in segments:
-        if len(seg["text"]) // _lang_scale.get(font, 2) * fontsize_px > width:
+        if len(seg["text"]) // _lang_scale.get(language, 2) * fontsize_px > width:
             split_str = [seg["text"][x : x + max_text_length] for x in range(0, len(seg["text"]), max_text_length)]
             seg["text"] = "\n".join(split_str)
 

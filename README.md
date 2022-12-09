@@ -29,5 +29,5 @@ pip install stenocaptioner
 ## Usage
 
 ```sh
-stenocaptioner https://www.youtube.com/watch?v=Ozvq6Poj8iQ --language ja --text-color red
+stenocaptioner https://www.youtube.com/watch?v=A6GG65TAEYo --language ja --text-color red
 ```
