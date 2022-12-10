@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import re
 
 import whisper
@@ -7,9 +7,9 @@ import youtube_dl
 from moviepy import editor
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
+from .move_funcs import arrive
 from .utils import insert_newlines
 
-_px_per_pt = 1.33
 _lang_scale = {"en": 2, "ja": 1}
 
 
@@ -19,27 +19,68 @@ def speech_to_text_segments(url: str, language: str, model_type: str, verbose: b
     return result["segments"]
 
 
-def annotate(clip, text, text_color, fontsize, font, fade_duration):
+def move_letters(letters, funcpos):
+    return [letter.set_position(funcpos(letter.screenpos, i, len(letters))) for i, letter in enumerate(letters)]
+
+
+def annotate(
+    clip,
+    text: str,
+    text_color: str,
+    fontsize: int,
+    font: str,
+    fadein_duration: float,
+    fadeout_duration: float,
+    letter_effect: str,
+):
     txtclip = editor.TextClip(text, fontsize=fontsize, font=font, color=text_color)
-    txtclip = txtclip.set_pos(("center", "bottom"))
-    if fade_duration > 0.0:
-        txtclip = txtclip.set_duration(clip.duration).crossfadein(fade_duration)
-    cvc = editor.CompositeVideoClip([clip, txtclip])
+    n_line = text.count("\n") + 1
+    txt_h = n_line * fontsize + clip.h * 0.05
+    txtclip = txtclip.set_position(("center", clip.h - txt_h)).set_duration(clip.duration)
+    if fadein_duration > 0.0:
+        txtclip = txtclip.crossfadein(fadein_duration)
+    if fadeout_duration > 0.0:
+        txtclip = txtclip.crossfadeout(fadeout_duration)
+    if letter_effect == "none":
+        cvc = editor.CompositeVideoClip([clip, txtclip])
+    elif letter_effect == "arrive":
+        letters = [editor.TextClip(s, fontsize=fontsize, font=font, color=text_color) for s in text if s != "\n"]
+        text_lines = text.split("\n")
+        cnt = 0
+        pos = 0
+        for letter in letters:
+            txt_h = (n_line - cnt) * fontsize + clip.h * 0.05
+            letter.screenpos = (pos * fontsize - len(text_lines[cnt]) * fontsize / 2 + clip.w / 2, clip.h - txt_h)
+            if pos == len(text_lines[cnt]) - 1:
+                cnt += 1
+                pos = 0
+            else:
+                pos += 1
+        cvc = editor.CompositeVideoClip([clip] + move_letters(letters, arrive))
+    else:
+        raise ValueError(f"letter_effect {letter_effect} is not supported.")
     return cvc.set_duration(clip.duration)
 
 
 def text_to_caption(
-    url: str, segments: list, text_color: str, fontsize: int, font: str, language: str, fade_duration: float
+    url: str,
+    segments: list,
+    text_color: str,
+    fontsize: int,
+    font: str,
+    language: str,
+    fadein_duration: float,
+    fadeout_duration: float,
+    letter_effect: str,
 ):
     video = VideoFileClip(url)
 
     width = video.w
-    fontsize_px = int(fontsize * _px_per_pt)
-    max_text_length = width // fontsize_px * _lang_scale.get(language, 2)
+    max_text_length = width // fontsize * _lang_scale.get(language, 2)
 
     for seg in segments:
-        if len(seg["text"]) // _lang_scale.get(language, 2) * fontsize_px > width:
-            seg["text"] = insert_newlines(seg["text"], max_text_length, language, int(max_text_length * 0.1))
+        if len(seg["text"]) // _lang_scale.get(language, 2) * fontsize > width:
+            seg["text"] = insert_newlines(seg["text"], max_text_length, language)
 
     annotated_clips = [
         annotate(
@@ -48,7 +89,9 @@ def text_to_caption(
             text_color=text_color,
             fontsize=fontsize,
             font=font,
-            fade_duration=fade_duration,
+            fadein_duration=fadein_duration,
+            fadeout_duration=fadeout_duration,
+            letter_effect=letter_effect,
         )
         for seg in segments
     ]
@@ -89,7 +132,9 @@ def main(args):
         fontsize=args.fontsize,
         font=args.font,
         language=args.language,
-        fade_duration=args.fade_duration,
+        fadein_duration=args.fadein_duration,
+        fadeout_duration=args.fadeout_duration,
+        letter_effect=args.letter_effect,
     )
 
 
@@ -103,8 +148,10 @@ def cli():
     parser.add_argument("--text-color", type=str, default="white")
     parser.add_argument("--font", type=str, default="VL-Gothic-Regular")
     parser.add_argument("--fontsize", type=int, default=50)
-    parser.add_argument("--fade-duration", type=float, default=0.0)
+    parser.add_argument("--fadein-duration", type=float, default=0.0)
+    parser.add_argument("--fadeout-duration", type=float, default=0.0)
     parser.add_argument("--save-text", action="store_true")
     parser.add_argument("--load-text", type=str, default=None)
+    parser.add_argument("--letter-effect", type=str, default="none", choices=["none", "arrive"])
     args = parser.parse_args()
     main(args)

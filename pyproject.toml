@@ -11,6 +11,7 @@ python = "^3.9"
 # whisper = {git = "https://github.com/openai/whisper.git"}
 torch = "^1.13.0"
 numpy = "^1.23.5"
+scipy = "^1.9.3"
 tqdm = "^4.64.1"
 more-itertools = "^9.0.0"
 transformers = "^4.25.1"
@@ -22,6 +23,7 @@ moviepy = "^1.0.3"
 [tool.poetry.group.dev.dependencies]
 isort = "^5.10.1"
 black = "^22.10.0"
+matplotlib = "^3.6.2"
 
 [build-system]
 requires = ["poetry-core"]

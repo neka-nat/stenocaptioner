@@ -39,7 +39,7 @@ def tweak_ja_lines(lines: list[str]) -> list[str]:
     return new_lines
 
 
-def insert_newlines(text: str, max_length: int, language: str, margin: int) -> str:
+def insert_newlines(text: str, max_length: int, language: str) -> str:
     if language == "ja":
         sentences = split_ja_sentences(text)
     else:
@@ -47,7 +47,7 @@ def insert_newlines(text: str, max_length: int, language: str, margin: int) -> s
 
     lines = []
     for sentence in sentences:
-        if lines and len(lines[-1]) + len(sentence) < max_length + margin:
+        if lines and len(lines[-1]) + len(sentence) < max_length:
             lines[-1] += sentence
         elif len(sentence) > max_length:
             lines.extend([sentence[x : x + max_length] for x in range(0, len(sentence), max_length)])
