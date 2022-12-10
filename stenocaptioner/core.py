@@ -6,6 +6,8 @@ import youtube_dl
 from moviepy import editor
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
+from .utils import insert_newlines
+
 
 _px_per_pt = 1.33
 _lang_scale = {"en": 2, "ja": 1}
@@ -32,8 +34,7 @@ def text_to_caption(url: str, segments: list, text_color: str, fontsize: int, fo
 
     for seg in segments:
         if len(seg["text"]) // _lang_scale.get(language, 2) * fontsize_px > width:
-            split_str = [seg["text"][x : x + max_text_length] for x in range(0, len(seg["text"]), max_text_length)]
-            seg["text"] = "\n".join(split_str)
+            seg["text"] = insert_newlines(seg["text"], max_text_length, language, int(max_text_length * 0.1))
 
     annotated_clips = [
         annotate(
