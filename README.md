@@ -2,6 +2,12 @@
 
 Automatic subtitling tool using whisper.
 
+## Dependencies
+
+* [whisper](https://github.com/openai/whisper)
+* [moviepy](https://github.com/Zulko/moviepy)
+* [youtube_dl](https://github.com/ytdl-org/youtube-dl)
+
 ## Installation
 
 ### Ubuntu
