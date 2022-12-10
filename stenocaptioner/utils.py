@@ -12,7 +12,7 @@ def split_en_sentences(text: str) -> list[str]:
 
 def split_ja_sentences(text: str) -> list[str]:
     sentences = []
-    for sentence in re.split(r"(?<=[、。？！])", text):
+    for sentence in re.split(r"(?<=[、。？！?!])", text):
         sentence = sentence.strip()
         if sentence:
             sentences.append(sentence)
@@ -32,7 +32,7 @@ def tweak_en_lines(lines: list[str]) -> list[str]:
 def tweak_ja_lines(lines: list[str]) -> list[str]:
     new_lines = []
     for line in lines:
-        if new_lines and line in ["、", "。", "？", "！"]:
+        if new_lines and line in ["、", "。", "？", "！", "?", "!"]:
             new_lines[-1] += line
         else:
             new_lines.append(line)
