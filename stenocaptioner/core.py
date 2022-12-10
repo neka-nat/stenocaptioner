@@ -1,4 +1,5 @@
 import os
+import json
 import re
 
 import whisper
@@ -51,6 +52,7 @@ def text_to_caption(
         )
         for seg in segments
     ]
+
     final_clip = editor.concatenate_videoclips(annotated_clips)
     prefix_url, ext = os.path.splitext(url)
     final_clip.write_videofile(f"{prefix_url}_captioned{ext}")
@@ -70,7 +72,15 @@ def main(args):
             args.url = f"{info['id']}.{info['ext']}"
 
     print("\n[stenocaptioner] Transcribing speech to text...")
-    segments = speech_to_text_segments(args.url, language=args.language, model_type=args.model_type)
+    if args.load_text is None:
+        segments = speech_to_text_segments(args.url, language=args.language, model_type=args.model_type)
+    else:
+        with open(args.load_text, "r") as f:
+            segments = json.load(f)
+    if args.save_text:
+        with open("transcript.json", "w") as f:
+            json.dump(segments, f, indent=4)
+        print(f"\n[stenocaptioner] Transcribed text saved as transcript.json.")
     print("\n[stenocaptioner] Adding captions to video...")
     text_to_caption(
         args.url,
@@ -94,5 +104,7 @@ def cli():
     parser.add_argument("--font", type=str, default="VL-Gothic-Regular")
     parser.add_argument("--fontsize", type=int, default=50)
     parser.add_argument("--fade-duration", type=float, default=0.0)
+    parser.add_argument("--save-text", action="store_true")
+    parser.add_argument("--load-text", type=str, default=None)
     args = parser.parse_args()
     main(args)
