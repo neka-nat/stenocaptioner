@@ -3,7 +3,7 @@ import re
 
 def split_en_sentences(text: str) -> list[str]:
     sentences = []
-    for sentence in re.split(r'(?<=[,.?!])', text):
+    for sentence in re.split(r"(?<=[,.?!])", text):
         sentence = sentence.strip()
         if sentence:
             sentences.append(sentence)

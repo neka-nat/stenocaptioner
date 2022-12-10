@@ -8,7 +8,6 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 from .utils import insert_newlines
 
-
 _px_per_pt = 1.33
 _lang_scale = {"en": 2, "ja": 1}
 
@@ -19,13 +18,18 @@ def speech_to_text_segments(url: str, language: str, model_type: str, verbose: b
     return result["segments"]
 
 
-def annotate(clip, text, text_color, fontsize, font):
+def annotate(clip, text, text_color, fontsize, font, fade_duration):
     txtclip = editor.TextClip(text, fontsize=fontsize, font=font, color=text_color)
-    cvc = editor.CompositeVideoClip([clip, txtclip.set_pos(("center", "bottom"))])
+    txtclip = txtclip.set_pos(("center", "bottom"))
+    if fade_duration > 0.0:
+        txtclip = txtclip.set_duration(clip.duration).crossfadein(fade_duration)
+    cvc = editor.CompositeVideoClip([clip, txtclip])
     return cvc.set_duration(clip.duration)
 
 
-def text_to_caption(url: str, segments: list, text_color: str, fontsize: int, font: str, language: str):
+def text_to_caption(
+    url: str, segments: list, text_color: str, fontsize: int, font: str, language: str, fade_duration: float
+):
     video = VideoFileClip(url)
 
     width = video.w
@@ -43,6 +47,7 @@ def text_to_caption(url: str, segments: list, text_color: str, fontsize: int, fo
             text_color=text_color,
             fontsize=fontsize,
             font=font,
+            fade_duration=fade_duration,
         )
         for seg in segments
     ]
@@ -68,7 +73,13 @@ def main(args):
     segments = speech_to_text_segments(args.url, language=args.language, model_type=args.model_type)
     print("\n[stenocaptioner] Adding captions to video...")
     text_to_caption(
-        args.url, segments, text_color=args.text_color, fontsize=args.fontsize, font=args.font, language=args.language
+        args.url,
+        segments,
+        text_color=args.text_color,
+        fontsize=args.fontsize,
+        font=args.font,
+        language=args.language,
+        fade_duration=args.fade_duration,
     )
 
 
@@ -82,5 +93,6 @@ def cli():
     parser.add_argument("--text-color", type=str, default="white")
     parser.add_argument("--font", type=str, default="VL-Gothic-Regular")
     parser.add_argument("--fontsize", type=int, default=50)
+    parser.add_argument("--fade-duration", type=float, default=0.0)
     args = parser.parse_args()
     main(args)
