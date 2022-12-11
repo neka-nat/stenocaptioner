@@ -27,13 +27,24 @@ def annotate(
     clip,
     text: str,
     text_color: str,
+    background_color: str,
+    contour_color: str,
+    contour_width: int,
     fontsize: int,
     font: str,
     fadein_duration: float,
     fadeout_duration: float,
     letter_effect: str,
 ):
-    txtclip = editor.TextClip(text, fontsize=fontsize, font=font, color=text_color)
+    txtclip = editor.TextClip(
+        text,
+        fontsize=fontsize,
+        font=font,
+        color=text_color,
+        bg_color=background_color,
+        stroke_color=contour_color,
+        stroke_width=contour_width,
+    )
     n_line = text.count("\n") + 1
     txt_h = n_line * fontsize + clip.h * 0.05
     txtclip = txtclip.set_position(("center", clip.h - txt_h)).set_duration(clip.duration)
@@ -66,6 +77,9 @@ def text_to_caption(
     url: str,
     segments: list,
     text_color: str,
+    background_color: str,
+    contour_color: str,
+    contour_width: int,
     fontsize: int,
     font: str,
     language: str,
@@ -87,6 +101,9 @@ def text_to_caption(
             video.subclip(min(seg["start"], video.duration), min(seg["end"], video.duration)),
             text=seg["text"],
             text_color=text_color,
+            background_color=background_color,
+            contour_color=contour_color,
+            contour_width=contour_width,
             fontsize=fontsize,
             font=font,
             fadein_duration=fadein_duration,
@@ -129,6 +146,9 @@ def main(args):
         args.url,
         segments,
         text_color=args.text_color,
+        background_color=args.background_color,
+        contour_color=args.contour_color,
+        contour_width=args.contour_width,
         fontsize=args.fontsize,
         font=args.font,
         language=args.language,
@@ -148,6 +168,9 @@ def cli():
         "--model-type", type=str, default="medium", choices=["tiny", "base", "small", "medium", "large"]
     )
     parser.add_argument("--text-color", type=str, default="white")
+    parser.add_argument("--background-color", type=str, default="transparent")
+    parser.add_argument("--contour-color", type=str, default=None)
+    parser.add_argument("--contour-width", type=int, default=1)
     parser.add_argument("--font", type=str, default="VL-Gothic-Regular")
     parser.add_argument("--fontsize", type=int, default=50)
     parser.add_argument("--fadein-duration", type=float, default=0.0)
