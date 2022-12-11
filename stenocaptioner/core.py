@@ -35,6 +35,7 @@ def annotate(
     fadein_duration: float,
     fadeout_duration: float,
     letter_effect: str,
+    bottom_margin: float,
 ):
     txtclip = editor.TextClip(
         text,
@@ -46,7 +47,7 @@ def annotate(
         stroke_width=contour_width,
     )
     n_line = text.count("\n") + 1
-    txt_h = n_line * fontsize + clip.h * 0.05
+    txt_h = n_line * fontsize + clip.h * bottom_margin
     txtclip = txtclip.set_position(("center", clip.h - txt_h)).set_duration(clip.duration)
     if fadein_duration > 0.0:
         txtclip = txtclip.crossfadein(fadein_duration)
@@ -60,7 +61,7 @@ def annotate(
         cnt = 0
         pos = 0
         for letter in letters:
-            txt_h = (n_line - cnt) * fontsize + clip.h * 0.05
+            txt_h = (n_line - cnt) * fontsize + clip.h * bottom_margin
             letter.screenpos = (pos * fontsize - len(text_lines[cnt]) * fontsize / 2 + clip.w / 2, clip.h - txt_h)
             if pos == len(text_lines[cnt]) - 1:
                 cnt += 1
@@ -86,14 +87,17 @@ def text_to_caption(
     fadein_duration: float,
     fadeout_duration: float,
     letter_effect: str,
+    side_margin: float,
+    bottom_margin: float,
 ):
     video = VideoFileClip(url)
 
     width = video.w
-    max_text_length = width // fontsize * _lang_scale.get(language, 2)
+    side_margin = int(side_margin * video.w)
+    max_text_length = (width + side_margin) // fontsize * _lang_scale.get(language, 2)
 
     for seg in segments:
-        if len(seg["text"]) // _lang_scale.get(language, 2) * fontsize > width:
+        if len(seg["text"]) // _lang_scale.get(language, 2) * fontsize + side_margin > width:
             seg["text"] = insert_newlines(seg["text"], max_text_length, language)
 
     annotated_clips = [
@@ -109,6 +113,7 @@ def text_to_caption(
             fadein_duration=fadein_duration,
             fadeout_duration=fadeout_duration,
             letter_effect=letter_effect,
+            bottom_margin=bottom_margin,
         )
         for seg in segments
     ]
@@ -155,6 +160,8 @@ def main(args):
         fadein_duration=args.fadein_duration,
         fadeout_duration=args.fadeout_duration,
         letter_effect=args.letter_effect,
+        side_margin=args.side_margin,
+        bottom_margin=args.bottom_margin,
     )
 
 
@@ -178,5 +185,7 @@ def cli():
     parser.add_argument("--save-text", action="store_true")
     parser.add_argument("--load-text", type=str, default=None)
     parser.add_argument("--letter-effect", type=str, default="none", choices=["none", "arrive"])
+    parser.add_argument("--side-margin", type=float, default=0.0)
+    parser.add_argument("--bottom-margin", type=float, default=0.05)
     args = parser.parse_args()
     main(args)
