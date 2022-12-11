@@ -50,26 +50,50 @@ stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja
 
 ### Background color
 
+```sh
+stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --background-color blue
+```
+
 ![result_bg_color_blue](assets/result_bg_color_blue.gif)
 
 ### Contour
+
+```sh
+stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --contour-color black
+```
 
 ![result_contour](assets/result_contour.gif)
 
 ### Font
 
-https://fontfree.me/3132
+Download https://fontfree.me/3132.
+
+```sh
+stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --font ./gomarice_mukasi_mukasi.ttf
+```
 
 ![result_font](assets/result_font.gif)
 
 ### Effect (typing)
 
+```sh
+stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --letter-effect typing
+```
+
 ![result_typing](assets/result_typing.gif)
 
 ### Effect (arrive)
 
+```sh
+stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --letter-effect arrive
+```
+
 ![result_arrive](assets/result_arrive.gif)
 
 ### Effect (cascade)
+
+```sh
+stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --letter-effect cascade
+```
 
 ![result_cascade](assets/result_cascade.gif)
