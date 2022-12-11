@@ -144,7 +144,9 @@ def cli():
     parser = argparse.ArgumentParser()
     parser.add_argument("url", type=str)
     parser.add_argument("--language", type=str, default="en")
-    parser.add_argument("--model-type", type=str, default="medium")
+    parser.add_argument(
+        "--model-type", type=str, default="medium", choices=["tiny", "base", "small", "medium", "large"]
+    )
     parser.add_argument("--text-color", type=str, default="white")
     parser.add_argument("--font", type=str, default="VL-Gothic-Regular")
     parser.add_argument("--fontsize", type=int, default=50)
