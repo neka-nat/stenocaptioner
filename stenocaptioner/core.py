@@ -45,23 +45,23 @@ def annotate(
     letter_effect: str,
     bottom_margin: float,
 ):
-    txtclip = editor.TextClip(
-        text,
-        fontsize=fontsize,
-        font=font,
-        color=text_color,
-        bg_color=background_color,
-        stroke_color=contour_color,
-        stroke_width=contour_width,
-    )
     n_line = text.count("\n") + 1
-    txt_h = n_line * fontsize + clip.h * bottom_margin
-    txtclip = txtclip.set_position(("center", clip.h - txt_h)).set_duration(clip.duration)
-    if fadein_duration > 0.0:
-        txtclip = txtclip.crossfadein(fadein_duration)
-    if fadeout_duration > 0.0:
-        txtclip = txtclip.crossfadeout(fadeout_duration)
     if letter_effect == "none":
+        txtclip = editor.TextClip(
+            text,
+            fontsize=fontsize,
+            font=font,
+            color=text_color,
+            bg_color=background_color,
+            stroke_color=contour_color,
+            stroke_width=contour_width,
+        )
+        txt_h = n_line * fontsize + clip.h * bottom_margin
+        txtclip = txtclip.set_position(("center", clip.h - txt_h)).set_duration(clip.duration)
+        if fadein_duration > 0.0:
+            txtclip = txtclip.crossfadein(fadein_duration)
+        if fadeout_duration > 0.0:
+            txtclip = txtclip.crossfadeout(fadeout_duration)
         cvc = editor.CompositeVideoClip([clip, txtclip])
     elif letter_effect in ["typing", "arrive", "cascade"]:
         func_map = {"typing": typing, "arrive": arrive, "cascade": cascade}
@@ -78,6 +78,10 @@ def annotate(
             for s in text
             if s != "\n"
         ]
+        if fadein_duration > 0.0:
+            letters = [letter.crossfadein(fadein_duration) for letter in letters]
+        if fadeout_duration > 0.0:
+            letters = [letter.crossfadeout(fadeout_duration) for letter in letters]
         text_lines = text.split("\n")
         cnt = 0
         pos = 0
