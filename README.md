@@ -45,11 +45,11 @@ stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja
 
 ### Original video
 
-![demo_org](assets/demo_org.gif)
+![demo_org](https://raw.githubusercontent.com/neka-nat/stenocaptioner/master/assets/demo_org.gif)
 
 ### Basic Result
 
-![result_basic](assets/result_basic.gif)
+![result_basic](https://raw.githubusercontent.com/neka-nat/stenocaptioner/master/assets/result_basic.gif)
 
 ### Background color
 
@@ -57,7 +57,7 @@ stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja
 stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --background-color blue
 ```
 
-![result_bg_color_blue](assets/result_bg_color_blue.gif)
+![result_bg_color_blue](https://raw.githubusercontent.com/neka-nat/stenocaptioner/master/assets/result_bg_color_blue.gif)
 
 ### Contour
 
@@ -65,7 +65,7 @@ stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --backg
 stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --contour-color black
 ```
 
-![result_contour](assets/result_contour.gif)
+![result_contour](https://raw.githubusercontent.com/neka-nat/stenocaptioner/master/assets/result_contour.gif)
 
 ### Font
 
@@ -75,7 +75,7 @@ Download https://fontfree.me/3132.
 stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --font ./gomarice_mukasi_mukasi.ttf
 ```
 
-![result_font](assets/result_font.gif)
+![result_font](https://raw.githubusercontent.com/neka-nat/stenocaptioner/master/assets/result_font.gif)
 
 ### Effect (typing)
 
@@ -83,7 +83,7 @@ stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --font 
 stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --letter-effect typing
 ```
 
-![result_typing](assets/result_typing.gif)
+![result_typing](https://raw.githubusercontent.com/neka-nat/stenocaptioner/master/assets/result_typing.gif)
 
 ### Effect (arrive)
 
@@ -91,7 +91,7 @@ stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --lette
 stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --letter-effect arrive
 ```
 
-![result_arrive](assets/result_arrive.gif)
+![result_arrive](https://raw.githubusercontent.com/neka-nat/stenocaptioner/master/assets/result_arrive.gif)
 
 ### Effect (cascade)
 
@@ -99,4 +99,4 @@ stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --lette
 stenocaptioner https://www.youtube.com/watch?v=ldybnuFxdiQ --language ja --letter-effect cascade
 ```
 
-![result_cascade](assets/result_cascade.gif)
+![result_cascade](https://raw.githubusercontent.com/neka-nat/stenocaptioner/master/assets/result_cascade.gif)
