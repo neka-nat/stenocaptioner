@@ -1,5 +1,8 @@
 # stenocaptioner
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/stenocaptioner)
+[![Downloads](https://pepy.tech/badge/stenocaptioner)](https://pepy.tech/project/stenocaptioner)
+
 Automatic subtitling tool using whisper.
 
 ## Dependencies
