@@ -94,8 +94,11 @@ def annotate(
                 pos = 0
             else:
                 pos += 1
+        transition_duration = min(clip.duration, 2) * 0.5
         letters = [
-            letter.set_position(func_map[letter_effect](letter.screenpos, i, 1.0 / len(letters)))
+            letter.set_position(
+                func_map[letter_effect](letter.screenpos, i, transition_duration / len(letters), transition_duration)
+            )
             for i, letter in enumerate(letters)
         ]
         cvc = editor.CompositeVideoClip([clip] + letters)
