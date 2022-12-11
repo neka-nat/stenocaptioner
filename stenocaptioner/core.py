@@ -256,10 +256,16 @@ def cli():
         help="Effect of the letters.",
     )
     parser.add_argument(
-        "--side-margin", type=float, default=0.0, help="Margin of the text from the side of the video."
+        "--side-margin",
+        type=float,
+        default=0.0,
+        help="Margin of the text from the side of the video. It is expressed as a ratio of the width of the image.",
     )
     parser.add_argument(
-        "--bottom-margin", type=float, default=0.05, help="Margin of the text from the bottom of the video."
+        "--bottom-margin",
+        type=float,
+        default=0.05,
+        help="Margin of the text from the bottom of the video. It is expressed as a ratio of the height of the image.",
     )
     args = parser.parse_args()
     main(args)

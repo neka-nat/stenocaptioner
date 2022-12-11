@@ -81,9 +81,9 @@ options:
   --letter-effect {none,typing,arrive,cascade}
                         Effect of the letters.
   --side-margin SIDE_MARGIN
-                        Margin of the text from the side of the video.
+                        Margin of the text from the side of the video. It is expressed as a ratio of the width of the image.
   --bottom-margin BOTTOM_MARGIN
-                        Margin of the text from the bottom of the video.
+                        Margin of the text from the bottom of the video. It is expressed as a ratio of the height of the image.
 
 ```
 
