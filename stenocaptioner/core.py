@@ -7,26 +7,34 @@ import youtube_dl
 from moviepy import editor
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
-from .move_funcs import arrive
+from .move_funcs import arrive, cascade, typing
 from .utils import insert_newlines
 
 _lang_scale = {"en": 2, "ja": 1}
 
 
 def speech_to_text_segments(url: str, language: str, model_type: str, verbose: bool = True) -> list:
+    """Transcribe speech to text segments.
+
+    Args:
+        url: URL of the video.
+        language: Language of the video.
+        model_type: Model type of the video.
+        verbose: Whether to print the progress. Defaults to True.
+
+    Returns:
+        list: List of text segments.
+    """
     model = whisper.load_model(model_type)
     result = model.transcribe(url, verbose=verbose, language=language)
     return result["segments"]
-
-
-def move_letters(letters, funcpos):
-    return [letter.set_position(funcpos(letter.screenpos, i, len(letters))) for i, letter in enumerate(letters)]
 
 
 def annotate(
     clip,
     text: str,
     text_color: str,
+    language: str,
     background_color: str,
     contour_color: str,
     contour_width: int,
@@ -55,20 +63,38 @@ def annotate(
         txtclip = txtclip.crossfadeout(fadeout_duration)
     if letter_effect == "none":
         cvc = editor.CompositeVideoClip([clip, txtclip])
-    elif letter_effect == "arrive":
-        letters = [editor.TextClip(s, fontsize=fontsize, font=font, color=text_color) for s in text if s != "\n"]
+    elif letter_effect in ["typing", "arrive", "cascade"]:
+        func_map = {"typing": typing, "arrive": arrive, "cascade": cascade}
+        letters = [
+            editor.TextClip(
+                s,
+                fontsize=fontsize,
+                font=font,
+                color=text_color,
+                bg_color=background_color,
+                stroke_color=contour_color,
+                stroke_width=contour_width,
+            )
+            for s in text
+            if s != "\n"
+        ]
         text_lines = text.split("\n")
         cnt = 0
         pos = 0
         for letter in letters:
             txt_h = (n_line - cnt) * fontsize + clip.h * bottom_margin
-            letter.screenpos = (pos * fontsize - len(text_lines[cnt]) * fontsize / 2 + clip.w / 2, clip.h - txt_h)
+            font_w = fontsize // _lang_scale.get(language, 2)
+            letter.screenpos = (pos * font_w - len(text_lines[cnt]) * font_w / 2 + clip.w / 2, clip.h - txt_h)
             if pos == len(text_lines[cnt]) - 1:
                 cnt += 1
                 pos = 0
             else:
                 pos += 1
-        cvc = editor.CompositeVideoClip([clip] + move_letters(letters, arrive))
+        letters = [
+            letter.set_position(func_map[letter_effect](letter.screenpos, i, 1.0 / len(letters)))
+            for i, letter in enumerate(letters)
+        ]
+        cvc = editor.CompositeVideoClip([clip] + letters)
     else:
         raise ValueError(f"letter_effect {letter_effect} is not supported.")
     return cvc.set_duration(clip.duration)
@@ -90,6 +116,25 @@ def text_to_caption(
     side_margin: float,
     bottom_margin: float,
 ):
+    """Add captions to a video.
+
+    Args:
+        url: URL of the video.
+        segments: List of segments.
+        text_color: Color of the text.
+        background_color: Color of the background.
+        contour_color: Color of the contour.
+        contour_width: Width of the contour.
+        fontsize: Font size.
+        font: Font name.
+        language: Language of the text.
+        fadein_duration: Duration of the fade-in effect.
+        fadeout_duration: Duration of the fade-out effect.
+        letter_effect: Effect of the letters.
+        side_margin: Margin of the text from the side of the video.
+        bottom_margin: Margin of the text from the bottom of the video.
+    """
+
     video = VideoFileClip(url)
 
     width = video.w
@@ -105,6 +150,7 @@ def text_to_caption(
             video.subclip(min(seg["start"], video.duration), min(seg["end"], video.duration)),
             text=seg["text"],
             text_color=text_color,
+            language=language,
             background_color=background_color,
             contour_color=contour_color,
             contour_width=contour_width,
@@ -125,28 +171,35 @@ def text_to_caption(
 
 
 def main(args):
+    total_steps = 2
+    current_step = 1
     if re.match("https?://www.youtube.com/", args.url):
+        total_steps = 3
         ydl_opts = {
             "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
             "outtmpl": "%(id)s.%(ext)s",
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            print("\n[stenocaptioner] This url is a youtube video. Downloading it first...")
+            print(
+                f"\n[stenocaptioner]({current_step}/{total_steps} step) This url is a youtube video. Downloading it first..."
+            )
             ydl.download([args.url])
             info = ydl.extract_info(args.url, download=False)
             args.url = f"{info['id']}.{info['ext']}"
+            current_step += 1
 
-    print("\n[stenocaptioner] Transcribing speech to text...")
+    print(f"\n[stenocaptioner]({current_step}/{total_steps} step) Transcribing speech to text...")
     if args.load_text is None:
         segments = speech_to_text_segments(args.url, language=args.language, model_type=args.model_type)
     else:
         with open(args.load_text, "r") as f:
             segments = json.load(f)
+    current_step += 1
     if args.save_text:
         with open("transcript.json", "w") as f:
             json.dump(segments, f, indent=4)
         print(f"\n[stenocaptioner] Transcribed text saved as transcript.json.")
-    print("\n[stenocaptioner] Adding captions to video...")
+    print(f"\n[stenocaptioner]({current_step}/{total_steps} step) Adding captions to video...")
     text_to_caption(
         args.url,
         segments,
@@ -169,23 +222,37 @@ def cli():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("url", type=str)
-    parser.add_argument("--language", type=str, default="en")
+    parser.add_argument("url", type=str, help="URL of the video.")
+    parser.add_argument("--language", type=str, default="en", help="Language of the text.")
     parser.add_argument(
-        "--model-type", type=str, default="medium", choices=["tiny", "base", "small", "medium", "large"]
+        "--model-type",
+        type=str,
+        default="medium",
+        choices=["tiny", "base", "small", "medium", "large"],
+        help="Whisper model type.",
     )
-    parser.add_argument("--text-color", type=str, default="white")
-    parser.add_argument("--background-color", type=str, default="transparent")
-    parser.add_argument("--contour-color", type=str, default=None)
-    parser.add_argument("--contour-width", type=int, default=1)
-    parser.add_argument("--font", type=str, default="VL-Gothic-Regular")
-    parser.add_argument("--fontsize", type=int, default=50)
-    parser.add_argument("--fadein-duration", type=float, default=0.0)
-    parser.add_argument("--fadeout-duration", type=float, default=0.0)
-    parser.add_argument("--save-text", action="store_true")
-    parser.add_argument("--load-text", type=str, default=None)
-    parser.add_argument("--letter-effect", type=str, default="none", choices=["none", "arrive"])
-    parser.add_argument("--side-margin", type=float, default=0.0)
-    parser.add_argument("--bottom-margin", type=float, default=0.05)
+    parser.add_argument("--text-color", type=str, default="white", help="Color of the text.")
+    parser.add_argument("--background-color", type=str, default="transparent", help="Color of the background.")
+    parser.add_argument("--contour-color", type=str, default=None, help="Color of the contour.")
+    parser.add_argument("--contour-width", type=int, default=1, help="Width of the contour.")
+    parser.add_argument("--font", type=str, default="VL-Gothic-Regular", help="Font name.")
+    parser.add_argument("--fontsize", type=int, default=50, help="Font size.")
+    parser.add_argument("--fadein-duration", type=float, default=0.0, help="Duration of the fade-in effect.")
+    parser.add_argument("--fadeout-duration", type=float, default=0.0, help="Duration of the fade-out effect.")
+    parser.add_argument("--save-text", action="store_true", help="Save the transcribed text.")
+    parser.add_argument("--load-text", type=str, default=None, help="Load the transcribed text.")
+    parser.add_argument(
+        "--letter-effect",
+        type=str,
+        default="none",
+        choices=["none", "typing", "arrive", "cascade"],
+        help="Effect of the letters.",
+    )
+    parser.add_argument(
+        "--side-margin", type=float, default=0.0, help="Margin of the text from the side of the video."
+    )
+    parser.add_argument(
+        "--bottom-margin", type=float, default=0.05, help="Margin of the text from the bottom of the video."
+    )
     args = parser.parse_args()
     main(args)
