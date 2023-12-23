@@ -8,7 +8,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-# whisper = {git = "https://github.com/openai/whisper.git"}
 torch = "^1.13.0"
 numpy = "^1.23.5"
 scipy = "^1.9.3"
@@ -18,6 +17,7 @@ transformers = "^4.25.1"
 ffmpeg-python = "0.2.0"
 youtube-dl = "^2021.12.17"
 moviepy = "^1.0.3"
+openai-whisper = "^20231117"
 
 
 [tool.poetry.group.dev.dependencies]

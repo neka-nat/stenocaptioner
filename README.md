@@ -31,7 +31,6 @@ sudo vi /etc/ImageMagick-6/policy.xml
 Install with pip.
 
 ```sh
-pip install git+https://github.com/openai/whisper.git
 pip install stenocaptioner
 ```
 
